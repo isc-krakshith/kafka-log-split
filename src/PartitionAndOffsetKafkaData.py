@@ -65,7 +65,10 @@ for seq in readLogFilenum:
                         topicDict[currentTopic]['lines']=1 
 
                     # then write line to correct topic
-                    topicDict[currentTopic]['filePtr'].write(line)
+                    if topicDict[currentTopic]['lines']==1:
+                        topicDict[currentTopic]['filePtr'].write(line.strip('\n'))
+                    else:
+                        topicDict[currentTopic]['filePtr'].write('\n'+line.strip('\n'))
                     #increment number of lines in file
                     topicDict[currentTopic]['lines']+=1
 
