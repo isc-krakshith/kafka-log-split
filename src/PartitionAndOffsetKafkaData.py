@@ -10,6 +10,9 @@ __author__ = "Kinshuk Rakshith"
 __version__ = "1.0.0"
 __license__ = "MIT"
 
+import tarfile
+import os.path
+
 #list of suffixes of logfiles to read
 readLogFilenum= [0,1]
 
@@ -25,9 +28,9 @@ writeCloseLog = open("./kafkaLogs/closes/0-00000000000000000.json","w")
 
 #keep track of filenumbers being written to
 topicDict = {
-    'trades':{'filePtr':writeTradeLog, 'path':"./kafkaLogs/trades/",'num':1, 'lines':0, 'partition':0},
-    'quotes':{'filePtr':writeQuoteLog, 'path':"./kafkaLogs/quotes/",'num':1, 'lines':0, 'partition':0},
-    'closes':{'filePtr':writeCloseLog, 'path':"./kafkaLogs/closes/",'num':1, 'lines':0, 'partition':0}
+    'trades':{'filePtr':writeTradeLog, 'path':"./kafkaLogs/trades/",'num':1, 'lines':0, 'partition':0, 'totalMsgs':0},
+    'quotes':{'filePtr':writeQuoteLog, 'path':"./kafkaLogs/quotes/",'num':1, 'lines':0, 'partition':0, 'totalMsgs':0},
+    'closes':{'filePtr':writeCloseLog, 'path':"./kafkaLogs/closes/",'num':1, 'lines':0, 'partition':0, 'totalMsgs':0}
     }
 
 #go round in a loop processing logfiles
@@ -62,7 +65,7 @@ for seq in readLogFilenum:
                         if topicDict[currentTopic]['num']%11==0:
                             topicDict[currentTopic]['partition']+=1
                         #reset lines
-                        topicDict[currentTopic]['lines']=1 
+                        topicDict[currentTopic]['lines']=1
 
                     # then write line to correct topic
                     if topicDict[currentTopic]['lines']==1:
@@ -71,6 +74,8 @@ for seq in readLogFilenum:
                         topicDict[currentTopic]['filePtr'].write('\n'+line.strip('\n'))
                     #increment number of lines in file
                     topicDict[currentTopic]['lines']+=1
+                    #increment totalnumber of msgs for topic
+                    topicDict[currentTopic]['totalMsgs']+=1
 
     except IOError as e:
         # report file error
@@ -80,3 +85,13 @@ for seq in readLogFilenum:
 writeTradeLog.close()
 writeQuoteLog.close()
 writeCloseLog.close()
+#print stats
+for key in topicDict:
+    print(key + " Files: "+ str(topicDict[key]['num']))
+    print(key + " Msgs: "+ str(topicDict[key]['totalMsgs']))
+    print(key + " Partitions: "+ str(topicDict[key]['partition'] + 1))
+
+##create tar.gz of each of the topic subfolders
+#for key in topicDict:
+#    with tarfile.open(key+".tar.gz", "w:gz") as tar:
+#        tar.add(key+".tar.gz", arcname=os.path.basename("./kafkaLogs/"+key))
