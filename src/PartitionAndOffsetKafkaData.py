@@ -54,7 +54,7 @@ for seq in readLogFilenum:
                     currentTopic= 'closes'
                 #if 1000 lines in written file
                 if currentTopic in topicDict.keys():
-                    if(topicDict[currentTopic]['lines']==1000):
+                    if(topicDict[currentTopic]['lines']==10000):
                         #close current writeLogFile
                         topicDict[currentTopic]['filePtr'].close()
                         #open new writeLogFile
@@ -65,10 +65,10 @@ for seq in readLogFilenum:
                         if topicDict[currentTopic]['num']%11==0:
                             topicDict[currentTopic]['partition']+=1
                         #reset lines
-                        topicDict[currentTopic]['lines']=1
+                        topicDict[currentTopic]['lines']=0
 
                     # then write line to correct topic
-                    if topicDict[currentTopic]['lines']==1:
+                    if topicDict[currentTopic]['lines']==0:
                         topicDict[currentTopic]['filePtr'].write(line.strip('\n'))
                     else:
                         topicDict[currentTopic]['filePtr'].write('\n'+line.strip('\n'))
