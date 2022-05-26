@@ -13,6 +13,9 @@ __license__ = "MIT"
 import tarfile
 import os.path
 
+LINES_PER_FILE = 10000
+FILES_PER_PARTITION = 10
+
 #list of suffixes of logfiles to read
 readLogFilenum= [0,1]
 
@@ -54,18 +57,18 @@ for seq in readLogFilenum:
                     currentTopic= 'closes'
                 #if 1000 lines in written file
                 if currentTopic in topicDict.keys():
-                    if(topicDict[currentTopic]['lines']==10000):
+                    if(topicDict[currentTopic]['lines']==LINES_PER_FILE):
                         #close current writeLogFile
                         topicDict[currentTopic]['filePtr'].close()
                         #increment filenum for the next offset
                         topicDict[currentTopic]['filenum']+=1
                         #increment partition and reset filenum
-                        if topicDict[currentTopic]['filenum']%10==0 and topicDict[currentTopic]['filenum']>0:
+                        if topicDict[currentTopic]['filenum']%FILES_PER_PARTITION==0 and topicDict[currentTopic]['filenum']>0:
                             topicDict[currentTopic]['partition']+=1
                             topicDict[currentTopic]['filenum']=0
                         #reset lines
                         topicDict[currentTopic]['lines']=0
-                        nextFileNum = str(topicDict[currentTopic]['filenum']*1000)
+                        nextFileNum = str(topicDict[currentTopic]['filenum']*LINES_PER_FILE)
                         if topicDict[currentTopic]['filenum']==0:
                             nextFileNum = "0000"
                         #open new writeLogFile
