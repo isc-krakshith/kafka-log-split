@@ -28,9 +28,9 @@ writeCloseLog = open("./kafkaLogs/closes/0-00000000000000000.json","w")
 
 #keep track of filenumbers being written to
 topicDict = {
-    'trades':{'filePtr':writeTradeLog, 'path':"./kafkaLogs/trades/",'num':1, 'lines':0, 'partition':0, 'totalMsgs':0},
-    'quotes':{'filePtr':writeQuoteLog, 'path':"./kafkaLogs/quotes/",'num':1, 'lines':0, 'partition':0, 'totalMsgs':0},
-    'closes':{'filePtr':writeCloseLog, 'path':"./kafkaLogs/closes/",'num':1, 'lines':0, 'partition':0, 'totalMsgs':0}
+    'trades':{'filePtr':writeTradeLog, 'path':"./kafkaLogs/trades/",'filenum':0, 'lines':0, 'partition':0, 'totalMsgs':0},
+    'quotes':{'filePtr':writeQuoteLog, 'path':"./kafkaLogs/quotes/",'filenum':0, 'lines':0, 'partition':0, 'totalMsgs':0},
+    'closes':{'filePtr':writeCloseLog, 'path':"./kafkaLogs/closes/",'filenum':0, 'lines':0, 'partition':0, 'totalMsgs':0}
     }
 
 #go round in a loop processing logfiles
@@ -57,15 +57,20 @@ for seq in readLogFilenum:
                     if(topicDict[currentTopic]['lines']==10000):
                         #close current writeLogFile
                         topicDict[currentTopic]['filePtr'].close()
-                        #open new writeLogFile
-                        topicDict[currentTopic]['filePtr']= open(topicDict[currentTopic]['path']+str(topicDict[currentTopic]['partition'])+"-00000000000000"+str(topicDict[currentTopic]['num']*1000)+".json","w")
-                        #increment num for the next offset
-                        topicDict[currentTopic]['num']+=1
-                        #increment partition and reset num
-                        if topicDict[currentTopic]['num']%11==0:
+                        #increment filenum for the next offset
+                        topicDict[currentTopic]['filenum']+=1
+                        #increment partition and reset filenum
+                        if topicDict[currentTopic]['filenum']%10==0 and topicDict[currentTopic]['filenum']>0:
                             topicDict[currentTopic]['partition']+=1
+                            topicDict[currentTopic]['filenum']=0
                         #reset lines
                         topicDict[currentTopic]['lines']=0
+                        nextFileNum = str(topicDict[currentTopic]['filenum']*1000)
+                        if topicDict[currentTopic]['filenum']==0:
+                            nextFileNum = "0000"
+                        #open new writeLogFile
+                        topicDict[currentTopic]['filePtr']= open(topicDict[currentTopic]['path']+str(topicDict[currentTopic]['partition'])+"-00000000000000"+nextFileNum+".json","w")
+
 
                     # then write line to correct topic
                     if topicDict[currentTopic]['lines']==0:
@@ -87,7 +92,7 @@ writeQuoteLog.close()
 writeCloseLog.close()
 #print stats
 for key in topicDict:
-    print(key + " Files: "+ str(topicDict[key]['num']))
+    print(key + " Files: "+ str(topicDict[key]['filenum']))
     print(key + " Msgs: "+ str(topicDict[key]['totalMsgs']))
     print(key + " Partitions: "+ str(topicDict[key]['partition'] + 1))
 
