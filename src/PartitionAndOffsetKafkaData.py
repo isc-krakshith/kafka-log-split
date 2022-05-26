@@ -95,7 +95,6 @@ writeQuoteLog.close()
 writeCloseLog.close()
 #print stats
 for key in topicDict:
-    print(key + " Files: "+ str(topicDict[key]['filenum']))
     print(key + " Msgs: "+ str(topicDict[key]['totalMsgs']))
     print(key + " Partitions: "+ str(topicDict[key]['partition'] + 1))
 
