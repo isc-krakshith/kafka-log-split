@@ -25,9 +25,9 @@ readLogFilenum= [0,1]
 # "messageType":9 close
 
 #open one file per each topic to write
-writeTradeLog = open("./kafkaLogs/trades/0-00000000000000000.json","w")
-writeQuoteLog = open("./kafkaLogs/quotes/0-00000000000000000.json","w")
-writeCloseLog = open("./kafkaLogs/closes/0-00000000000000000.json","w")
+writeTradeLog = open("./kafkaLogs/trades/0-0000000000000000000.json","w")
+writeQuoteLog = open("./kafkaLogs/quotes/0-0000000000000000000.json","w")
+writeCloseLog = open("./kafkaLogs/closes/0-0000000000000000000.json","w")
 
 #keep track of filenumbers being written to
 topicDict = {
@@ -70,7 +70,7 @@ for seq in readLogFilenum:
                         topicDict[currentTopic]['lines']=0
                         nextFileNum = str(topicDict[currentTopic]['filenum']*LINES_PER_FILE)
                         if topicDict[currentTopic]['filenum']==0:
-                            nextFileNum = "0000"
+                            nextFileNum = "00000"
                         #open new writeLogFile
                         topicDict[currentTopic]['filePtr']= open(topicDict[currentTopic]['path']+str(topicDict[currentTopic]['partition'])+"-00000000000000"+nextFileNum+".json","w")
 
